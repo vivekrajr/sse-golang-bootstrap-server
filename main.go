@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-var myChannel chan int
+var eventChannel chan int
 
 func HandleSSE(w http.ResponseWriter, r *http.Request) {
 	w.Header().Add("Access-Control-Allow-Origin", "*")
@@ -20,15 +20,16 @@ func HandleSSE(w http.ResponseWriter, r *http.Request) {
 
 	for {
 		select {
-		case number := <-myChannel:
+		case number := <-eventChannel:
 			conn.WriteString(fmt.Sprintf("%d", number))
 		}
 	}
+
 }
 
 func main() {
 
-	myChannel = make(chan int)
+	eventChannel = make(chan int)
 
 	go producer()
 
@@ -41,7 +42,7 @@ func producer() {
 	i := 1
 
 	for {
-		myChannel <- i
+		eventChannel <- i
 		if i == 100 {
 			i = 1
 		} else {
